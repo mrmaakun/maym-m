@@ -12,6 +12,7 @@ end
 
 get '/' do
 	logger.info "logger works"
+
 end
 
 post '/callback' do
@@ -42,6 +43,10 @@ post '/callback' do
         tf = Tempfile.open("content")
         logger.info tf.path
         tf.write(response.body)
+        filename = "image_#{rand(10000)}.jpg"
+        out_file = File.open(filename, "a+")
+        out_file << response.body
+        out_file.close
       end
     end
   }
