@@ -2,6 +2,7 @@
 require 'sinatra'
 require 'line/bot'
 require 'open-uri'
+require 'httparty'
 
 def client
   @client ||= Line::Bot::Client.new { |config|
