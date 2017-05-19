@@ -1,6 +1,7 @@
 # app.rb
 require 'sinatra'
 require 'line/bot'
+require 'open-uri'
 
 def client
   @client ||= Line::Bot::Client.new { |config|
@@ -39,6 +40,7 @@ post '/callback' do
         logger.info event.message['originalContentUrl']
         response = client.get_message_content(event.message['id'])
         tf = Tempfile.open("content")
+        logger.info tf.path
         tf.write(response.body)
       end
     end
