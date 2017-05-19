@@ -58,15 +58,16 @@ post '/callback' do
         logger.info event.message
         logger.info event.message['originalContentUrl']
         response = client.get_message_content(event.message['id'])
-        tf = Tempfile.open("content")
-        logger.info tf.path
-        tf.write(response.body)
+
+        # save file to disk temporarily
         filename = "public/images/image_#{event.message['id']}.jpg"
         logger.info filename
         out_file = File.open(filename, "a+")
         out_file << response.body
         out_file.close
 
+
+        # post file to facebook
         headers = { 
           "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
         }
@@ -74,6 +75,9 @@ post '/callback' do
         response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
           :headers => headers
         )
+
+        # delete file after we're done to save space
+        File.delete(filename)
 	     end
      end
    }
