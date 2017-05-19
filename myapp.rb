@@ -35,6 +35,7 @@ post '/callback' do
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
         logger.info "Awesome: "
+        logger.info event.message
         logger.info event.message['originalContentUrl']
         response = client.get_message_content(event.message['id'])
         tf = Tempfile.open("content")
