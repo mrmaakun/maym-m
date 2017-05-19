@@ -10,7 +10,7 @@ def client
 end
 
 get '/' do
-	puts "awesome"
+	logger.info "logger works"
 end
 
 post '/callback' do
@@ -27,15 +27,15 @@ post '/callback' do
     when Line::Bot::Event::Message
       case event.type
       when Line::Bot::Event::MessageType::Text
-        puts "text message"
+        logger.info "text message"
         message = {
           type: 'text',
           text: '写真を送ってみてください！お客さんが既に送った写真を見たかったら、イベントのフェイスブックページを見てください: https://www.facebook.com/Mari-and-Marks-Wedding-646906422185940/'
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
-        puts "Awesome: "
-        puts event.message['originalContentUrl']
+        logger.info "Awesome: "
+        logger.info event.message['originalContentUrl']
         response = client.get_message_content(event.message['id'])
         tf = Tempfile.open("content")
         tf.write(response.body)
