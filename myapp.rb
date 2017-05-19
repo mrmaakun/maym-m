@@ -9,6 +9,10 @@ def client
   }
 end
 
+get '/' do
+	puts "awesome"
+end
+
 post '/callback' do
   body = request.body.read
 
@@ -32,6 +36,7 @@ post '/callback' do
         response = client.get_message_content(event.message['id'])
         tf = Tempfile.open("content")
         tf.write(response.body)
+        puts "Awesome: "
         puts event.message['originalContentUrl']
       end
     end
