@@ -43,7 +43,7 @@ post '/callback' do
         tf = Tempfile.open("content")
         logger.info tf.path
         tf.write(response.body)
-        filename = "image_#{rand(10000)}.jpg"
+        filename = "public/images/image_#{event.message['id']}.jpg"
         logger.info filename
         out_file = File.open(filename, "a+")
         out_file << response.body
