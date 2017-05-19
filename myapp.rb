@@ -73,7 +73,7 @@ post '/callback' do
 
         response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
           :headers => headers
-        }
+	)
 
   "OK"
 end
