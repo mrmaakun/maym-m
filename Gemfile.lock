@@ -1,7 +1,10 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    httparty (0.15.5)
+      multi_xml (>= 0.5.2)
     line-bot-api (1.2.0)
+    multi_xml (0.6.0)
     mustermann (1.0.0)
     rack (2.0.3)
     rack-protection (2.0.0)
@@ -17,6 +20,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  httparty
   line-bot-api
   sinatra
 

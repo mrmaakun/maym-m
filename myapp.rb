@@ -10,6 +10,23 @@ def client
   }
 end
 
+class FacebookAPI
+  include HTTParty
+  base_uri 'api.stackexchange.com'
+
+  def initialize(service, page)
+    @options = { query: { site: service, page: page } }
+  end
+
+  def questions
+    self.class.get("/2.2/questions", @options)
+  end
+
+  def users
+    self.class.get("/2.2/users", @options)
+  end
+end
+
 get '/' do
 	logger.info "logger works"
 
@@ -48,9 +65,16 @@ post '/callback' do
         out_file = File.open(filename, "a+")
         out_file << response.body
         out_file.close
-      end
-    end
-  }
+
+        headers = { 
+          "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
+        }
+
+        response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
+          :headers => headers
+            end
+          end
+        }
 
   "OK"
 end
