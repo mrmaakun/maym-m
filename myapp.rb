@@ -25,13 +25,14 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         message = {
           type: 'text',
-          text: event.message['text']
+          text: '写真を送ってみてください！お客さんが既に送った写真を見たかったら、イベントのフェイスブックページを見てください: https://www.facebook.com/Mari-and-Marks-Wedding-646906422185940/'
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
         response = client.get_message_content(event.message['id'])
         tf = Tempfile.open("content")
         tf.write(response.body)
+        puts event.message['originalContentUrl']
       end
     end
   }
