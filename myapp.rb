@@ -44,6 +44,7 @@ post '/callback' do
         logger.info tf.path
         tf.write(response.body)
         filename = "image_#{rand(10000)}.jpg"
+        logger.info filename
         out_file = File.open(filename, "a+")
         out_file << response.body
         out_file.close
