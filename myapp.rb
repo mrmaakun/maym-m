@@ -245,7 +245,7 @@ post '/callback' do
           end
         }
         
-        xml_text = builder.to_xml save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION
+        xml_text = builder.to_xml save_with:Nokogiri::XML::Node::SaveOptions::NO_DECLARATION
         
 	       puts xml_text
 	
