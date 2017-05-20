@@ -184,12 +184,10 @@ post '/callback' do
           :body => image_data
         )
 
-        response_json = JSON.parse(response.body)
-        logger.info response_json
-
+        logger.info response['parsed_response']
 
         # Refresh if response fails
-        if !response_json.has_key? "error"
+        if !response['parsed_response'].include? "Token expired"
 
           logger.info "Token error occurred so we will refresh the token."
           refresh_token!
