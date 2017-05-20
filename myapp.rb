@@ -255,12 +255,14 @@ post '/callback' do
         post_body << "--#{BOUNDARY}\r\n"
         post_body << "Content-Type: application/atom+xml\r\n\r\n"
         post_body << xml_text
-        post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
 
         # Add the file Data
         post_body << "--#{BOUNDARY}\r\n"
         post_body << "Content-Type: video/mp4\r\n\r\n"
-        post_body << image_data      
+        post_body << image_data    
+
+        post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
+  
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
