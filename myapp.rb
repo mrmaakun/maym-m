@@ -184,11 +184,14 @@ post '/callback' do
           :body => image_data
         )
 
-        logger.info response
+        response_json = JSON.parse(response.body)
+        logger.info response_json
 
 
         # Refresh if response fails
-        if !response.has_key? "error"
+        if !response_json.has_key? "error"
+
+          logger.info "Token error occurred so we will refresh the token."
           refresh_token!
 
           headers = { 
@@ -200,7 +203,8 @@ post '/callback' do
             :body => image_data
           )
 
-          logger.info response
+          response_json = JSON.parse(response.body)
+          logger.info response_json
 
         end
 
