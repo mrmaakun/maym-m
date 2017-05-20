@@ -131,13 +131,13 @@ post '/callback' do
 
 
         # post file to facebook
-        headers = { 
-          "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
-        }
+      #  headers = { 
+      #    "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
+      #  }
 
-        response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
-          :headers => headers
-        )
+      #  response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
+      #    :headers => headers
+      #  )
 
 
         # post file to google photos
