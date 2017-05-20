@@ -187,6 +187,25 @@ post '/callback' do
         logger.info response
 
 
+        # Refresh if response fails
+        if !response.has_key? "error"
+          refresh_token!
+
+          headers = { 
+            "Authorization"  => "Bearer #{redis.get("access_token")}",
+            "Content-Type" => "image/jpeg"
+          }
+          response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
+            :headers => headers,
+            :body => image_data
+          )
+
+          logger.info response
+
+        end
+
+
+
         # delete file after we're done to save space
         File.delete(filename)
 	     end
@@ -208,7 +227,7 @@ end
 
 def refresh_token!
 
-    redis = Redis.new(:url => "redis://h:pacd329b61fd6fa1451da165fb2aa012b2c2b4078861312d6e3234a1f276947bf@ec2-34-197-198-120.compute-1.amazonaws.com", :port => 13449, :db => 0)
+    redis = Redis.new(:url => ENV["REDIS_URL"], :port => 13449, :db => 0)
 
     response = HTTParty.post("https://accounts.google.com/o/oauth2/token",
         body: {
