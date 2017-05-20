@@ -110,9 +110,37 @@ post '/callback' do
       case event.type
       when Line::Bot::Event::MessageType::Text
         logger.info "text message"
+
+        if event.message['text'].include? "次会"
+          message = {
+          type: 'text',
+          text: "2次会はパセラリゾーツ グランデ 渋谷店でやります！ 受付は20:30から、スタートは21:00です！是非遊びに着てください！ https://goo.gl/aR74bV"
+        }
+        client.reply_message(event['replyToken'], message)
+          return
+        end
+
+        if event.message['text'].downcase.include? "english"
+          message = {
+          type: "text",
+          text: "eigo wakarimasen!!"
+        }
+        client.reply_message(event['replyToken'], message)
+          return
+        end
+
+        if event.message['text'].downcase.include? "facebook" or event.message['text'].include? "フェィスブック"
+          message = {
+          type: "text",
+          text: "結婚式の正式なFacebook Pageはこちらにあります! \n https://goo.gl/lKQKdS"
+        }
+        client.reply_message(event['replyToken'], message)
+          return
+        end
+
         message = {
           type: 'text',
-          text: '写真を送ってみてください！お客さんが既に送った写真を見たかったら、イベントのフェイスブックページを見てください: https://www.facebook.com/Mari-and-Marks-Wedding-646906422185940/'
+          text: "写真を送ってみてください！お客さんが既に送った写真を見たかったら、イベントのフェイスブックページを見てください! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
@@ -129,6 +157,11 @@ post '/callback' do
         out_file << response.body
         out_file.close
 
+        message = {
+          type: 'text',
+          text: "写真送ってくれてありがとう! ウェディングアルバムにアップロードするね〜　アルバムはこのリンクから見られる! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
+        }
+        client.reply_message(event['replyToken'], message)
 
         # post file to facebook
       #  headers = { 
