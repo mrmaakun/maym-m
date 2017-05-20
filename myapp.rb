@@ -140,7 +140,7 @@ post '/callback' do
 
         message = {
           type: 'text',
-          text: "写真を送ってみてください！お客さんが既に送った写真を見たかったら、イベントのフェイスブックページを見てください! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
+          text: "写真を送ってみてください！お客様が既に送った写真を見たかったら、ウェディングアルバムを見てください! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
