@@ -260,7 +260,10 @@ post '/callback' do
         # Add the file Data
         post_body << "--#{BOUNDARY}\r\n"
         post_body << "Content-Type: video/mp4\r\n\r\n"
-        post_body << image_data      
+        post_body << image_data 
+
+        logger.info post_body
+     
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
@@ -283,7 +286,6 @@ post '/callback' do
             :headers => headers,
             :body => URI.encode_www_form(post_body)
           )
-          logger.info post_body
 
         end
 
