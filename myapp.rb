@@ -235,10 +235,14 @@ post '/callback' do
         uri = URI.parse("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473")
         http = Net::HTTP.new(uri.host, uri.port)
 
+
         request = Net::HTTP::Post.new(uri.request_uri)
         request['Authorization'] = "Bearer #{redis.get("access_token")}"
         request['Content-Type'] = "multipart/form-data, boundary=#{BOUNDARY}"
         request['MIME-version'] = "1.0"
+
+        request.use_ssl = true
+
 
         
         post_body = []
