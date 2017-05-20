@@ -231,12 +231,7 @@ post '/callback' do
 
         BOUNDARY = "END_OF_PART"
 
-        headers = { 
-          "Authorization"  => "Bearer #{redis.get("access_token")}",
-          "Content-Type" => "multipart/related, boundary=#{BOUNDARY}",
-          "Content-Length" => "423478347",
-          "MIME-version" => "1.0"
-        }
+        
         post_body = []
 
         builder = Nokogiri::XML::Builder.new { |xml|
@@ -259,10 +254,16 @@ post '/callback' do
         # Add the file Data
         post_body << "--#{BOUNDARY}\r\n"
         post_body << "Content-Type: video/mp4\r\n\r\n"
-        #post_body << image_data    
+        post_body << image_data   
 
         post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
   
+        headers = { 
+          "Authorization"  => "Bearer #{redis.get("access_token")}",
+          "Content-Type" => "multipart/related, boundary=#{BOUNDARY}",
+          "Content-Length" => post_body.length.to_s,
+          "MIME-version" => "1.0"
+        }
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
