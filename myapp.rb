@@ -3,6 +3,28 @@ require 'sinatra'
 require 'line/bot'
 require 'open-uri'
 require 'httparty'
+require 'googleauth'
+require 'google/api_client/client_secrets'
+require 'redis'
+require 'json'
+require 'date'
+
+
+if ENV['GOOGLE_CREDENTIALS'] != "NONE"
+
+  credential_file = File.open("credentials.json", "a+")
+  credential_file << ENV['GOOGLE_CREDENTIALS']
+  credential_file.close
+end
+
+redis = Redis.new(:url => "redis://h:pacd329b61fd6fa1451da165fb2aa012b2c2b4078861312d6e3234a1f276947bf@ec2-34-197-198-120.compute-1.amazonaws.com", :port => 13449, :db => 0)
+
+client_secrets = Google::APIClient::ClientSecrets.load("credentials.json")
+auth_client = client_secrets.to_authorization
+auth_client.update!(
+  :scope => 'https://picasaweb.google.com/data/',
+  :redirect_uri => 'http://localhost:12345/oauth2callback',
+)
 
 def client
   @client ||= Line::Bot::Client.new { |config|
@@ -28,8 +50,48 @@ class FacebookAPI
   end
 end
 
-get '/' do
-	logger.info "logger works"
+get '/checktokens' do
+    logger.info "Access token: #{redis.get("access_token")}"
+    logger.info "Refresh token: #{redis.get("refresh_token")}"
+end
+
+get '/refresh' do
+
+  refresh_token!
+  logger.info "Access token: #{redis.get("access_token")}"
+  logger.info "Refresh token: #{redis.get("refresh_token")}"
+
+end
+
+get '/oauth2callback' do
+  if request['code'] == nil
+    auth_uri = auth_client.authorization_uri.to_s
+    redirect to(auth_uri)
+  else
+    auth_client.code = request['code']
+    auth_client.fetch_access_token!
+    auth_client.client_secret = nil
+    logger.info auth_client.to_json
+    parsed_credentials = JSON.parse(auth_client.to_json)
+    redis.set("access_token", parsed_credentials['access_token'])
+    redis.set("refresh_token", parsed_credentials['refresh_token'])
+
+    logger.info "Access token: #{redis.get("access_token")}"
+    logger.info "Refresh token: #{redis.get("refresh_token")}"
+
+    redirect to('/authcomplete')
+  end
+end
+
+get '/authcomplete' do
+  "Now the bot is authorized to publish to Google Photos!"
+end
+
+
+get '/googleauth' do
+  auth_uri = auth_client.authorization_uri.to_s
+  redirect auth_uri
+
 
 end
 
@@ -62,6 +124,7 @@ post '/callback' do
         # save file to disk temporarily
         filename = "public/images/image_#{event.message['id']}.jpg"
         logger.info filename
+        image_data = response.body
         out_file = File.open(filename, "a+")
         out_file << response.body
         out_file.close
@@ -76,6 +139,19 @@ post '/callback' do
           :headers => headers
         )
 
+
+        # post file to google photos
+
+        headers = { 
+          "Authorization"  => "Bearer #{redis.get("access_token")}",
+          "Content-Type" => "image/jpeg"
+        }
+        response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
+          :headers => headers,
+          :body => image_data
+        )
+
+
         # delete file after we're done to save space
         File.delete(filename)
 	     end
@@ -84,3 +160,33 @@ post '/callback' do
 
   "OK"
 end
+
+# Google token refresh code
+
+def to_params
+  { 'refresh_token' => redis.get("refresh_token"),
+    'client_id'     => ENV['CLIENT_ID'],
+    'client_secret' => ENV['CLIENT_SECRET'],
+    'grant_type'    => 'refresh_token'
+  }
+end
+
+def refresh_token!
+
+    redis = Redis.new(:url => "redis://h:pacd329b61fd6fa1451da165fb2aa012b2c2b4078861312d6e3234a1f276947bf@ec2-34-197-198-120.compute-1.amazonaws.com", :port => 13449, :db => 0)
+
+    response = HTTParty.post("https://accounts.google.com/o/oauth2/token",
+        body: {
+            grant_type: "refresh_token",
+            client_id: ENV['GOOGLE_CLIENT_ID'],
+            client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+            refresh_token: redis.get("refresh_token")
+            })
+    response = JSON.parse(response.body)
+    logger.info response
+    redis.set("access_token", response["access_token"])
+    redis.set("expires_at", response["expires_in"])
+end
+
+
+
