@@ -283,7 +283,7 @@ post '/callback' do
             :headers => headers,
             :body => URI.encode_www_form(post_body)
           )
-          logger.info response_json
+          logger.info post_body
 
         end
 
