@@ -187,7 +187,7 @@ post '/callback' do
         logger.info response.parsed_response
 
         # Refresh if response fails
-        if !response.parsed_response.include? "Token expired"
+        if response.parsed_response.include? "Token expired"
 
           logger.info "Token error occurred so we will refresh the token."
           refresh_token!
