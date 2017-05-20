@@ -184,6 +184,8 @@ post '/callback' do
           :body => image_data
         )
 
+        logger.info response
+
 
         # delete file after we're done to save space
         File.delete(filename)
