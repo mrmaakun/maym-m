@@ -272,7 +272,7 @@ post '/callback' do
         # set content length header after knowing the size of the body
         request['Content-Length'] = joined_body.length.to_s
 
-
+        request.body = joined_body
         response = http.request(request)
 
         logger.info response
