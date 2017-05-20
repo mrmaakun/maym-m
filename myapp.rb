@@ -9,6 +9,7 @@ require 'redis'
 require 'json'
 require 'date'
 require 'nokogiri'
+require 'net/http'
 
 
 if ENV['GOOGLE_CREDENTIALS'] != "NONE"
@@ -231,6 +232,14 @@ post '/callback' do
 
         BOUNDARY = "END_OF_PART"
 
+        uri = URI.parse("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473")
+        http = Net::HTTP.new(uri.host, uri.port)
+
+        request = Net::HTTP::Post.new(uri.request_uri)
+        request['Authorization'] = "Bearer #{redis.get("access_token")}"
+        request['Content-Type'] = "multipart/related, boundary=#{BOUNDARY}"
+        request['MIME-version'] = "1.0"
+
         
         post_body = []
 
@@ -260,36 +269,13 @@ post '/callback' do
 
         joined_body = post_body.join
   
-        headers = { 
-          "Authorization"  => "Bearer #{redis.get("access_token")}",
-          "Content-Type" => "multipart/related, boundary=#{BOUNDARY}",
-          "Content-Length" => joined_body.length.to_s,
-          "MIME-version" => "1.0"
-        }
+        # set content length header after knowing the size of the body
+        request['Content-Length'] = joined_body.length.to_s
 
-        response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
-          :headers => headers,
-          :body => joined_body
-        )
 
-        logger.info response.parsed_response
+        response = http.request(request)
 
-        # Refresh if response fails
-        if response.parsed_response.include? "Token expired"
-
-          logger.info "Token error occurred so we will refresh the token."
-          refresh_token!
-
-          headers = { 
-            "Authorization"  => "Bearer #{redis.get("access_token")}",
-            "Content-Type" => "video/mp4"
-          }
-          response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
-            :headers => headers,
-            :body => post_body.join
-          )
-
-        end
+        logger.info response
 
 	     end
 
