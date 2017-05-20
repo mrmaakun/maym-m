@@ -237,11 +237,6 @@ post '/callback' do
         }
         post_body = []
 
-        my_hash = { :first_name => 'Joe', :last_name => 'Blow', :email => 'joe@example.com'}
-        my_hash.to_xml(:root => 'customer')
-
-
-
         builder = Nokogiri::XML::Builder.new { |xml|
           xml.entry('xmlns' => 'http://www.w3.org/2005/Atom') do
             xml.title "title"
