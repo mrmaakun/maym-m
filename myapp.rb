@@ -229,13 +229,12 @@ post '/callback' do
         }
         client.reply_message(event['replyToken'], message)
 
+        BOUNDARY = "END_OF_PART"
+
         headers = { 
           "Authorization"  => "Bearer #{redis.get("access_token")}",
           "Content-Type" => "multipart/form-data, boundary=#{BOUNDARY}"
         }
-
-        BOUNDARY = "END_OF_PART"
-
         post_body = []
 
         my_hash = { :first_name => 'Joe', :last_name => 'Blow', :email => 'joe@example.com'}
