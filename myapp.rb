@@ -257,18 +257,19 @@ post '/callback' do
         post_body << image_data   
 
         post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
+
+        joined_body = post_body.join
   
         headers = { 
           "Authorization"  => "Bearer #{redis.get("access_token")}",
           "Content-Type" => "multipart/related, boundary=#{BOUNDARY}",
-          "Content-Length" => post_body.length.to_s,
+          "Content-Length" => joined_body.length.to_s,
           "MIME-version" => "1.0"
         }
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
-          :body => post_body.join
-        )
+          :body => joined_body
 
         logger.info response.parsed_response
 
