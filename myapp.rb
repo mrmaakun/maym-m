@@ -8,6 +8,7 @@ require 'google/api_client/client_secrets'
 require 'redis'
 require 'json'
 require 'date'
+require 'nokogiri'
 
 
 if ENV['GOOGLE_CREDENTIALS'] != "NONE"
@@ -230,11 +231,44 @@ post '/callback' do
 
         headers = { 
           "Authorization"  => "Bearer #{redis.get("access_token")}",
-          "Content-Type" => "video/mp4"
+          "Content-Type" => "multipart/form-data, boundary=#{BOUNDARY}"
         }
+
+        BOUNDARY = "END_OF_PART"
+
+        post_body = []
+
+        my_hash = { :first_name => 'Joe', :last_name => 'Blow', :email => 'joe@example.com'}
+        my_hash.to_xml(:root => 'customer')
+
+
+
+        builder = Nokogiri::XML::Builder.new { |xml|
+          xml.entry('xmlns' => 'http://www.w3.org/2005/Atom') do
+            xml.title "title"
+            xml.summary "Summary"
+            xml.object(:scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/photos/2007#photo")
+          end
+        }
+        
+        xml_text = builder.to_xml save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION
+        
+	       puts xml_text
+	
+	       # Add the XML
+        post_body << "--#{BOUNDARY}\r\n"
+        post_body << "Content-Type: application/atom+xml\r\n\r\n"
+        post_body << xml_text
+        post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
+
+        # Add the file Data
+        post_body << "--#{BOUNDARY}\r\n"
+        post_body << "Content-Type: #{MIME::Types.type_for(file)}\r\n\r\n"
+        post_body << image_data      
+
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
-          :body => image_data
+          :body => post_body
         )
 
         logger.info response.parsed_response
@@ -258,7 +292,6 @@ post '/callback' do
         end
 
 	     end
-
 
      end
    }
@@ -292,6 +325,5 @@ def refresh_token!
     redis.set("access_token", response["access_token"])
     redis.set("expires_at", response["expires_in"])
 end
-
 
 
