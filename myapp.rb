@@ -257,7 +257,7 @@ post '/callback' do
 
         # Add the file Data
         post_body << "--#{BOUNDARY}\r\n"
-        post_body << "Content-Type: #{MIME::Types.type_for(file)}\r\n\r\n"
+        post_body << "Content-Type: video/mp4\r\n\r\n"
         post_body << image_data      
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
