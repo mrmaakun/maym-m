@@ -144,9 +144,7 @@ post '/callback' do
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image
-        logger.info "Awesome: "
         logger.info event.message
-        logger.info event.message['originalContentUrl']
         response = client.get_message_content(event.message['id'])
 
         # save file to disk temporarily
@@ -163,25 +161,19 @@ post '/callback' do
         }
         client.reply_message(event['replyToken'], message)
 
-      when Line::Bot::Event::MessageType::Video
+          
 
-        message = {
-          type: 'text',
-          text: "This is a video!"
-        }
-        client.reply_message(event['replyToken'], message)
+            # post file to facebook
+          #  headers = { 
+          #    "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
+          #  }
 
-        # post file to facebook
-      #  headers = { 
-      #    "Authorization"  => "OAuth #{ENV["FB_PAGE_ACCESS_TOKEN"]}" 
-      #  }
-
-      #  response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
-      #    :headers => headers
-      #  )
+          #  response = HTTParty.post("https://graph.facebook.com/646906422185940/photos?url=http://maymm-photoshare.herokuapp.com/images/image_#{event.message['id']}.jpg", 
+          #    :headers => headers
+          #  )
 
 
-        # post file to google photos
+            # post file to google photos
 
         headers = { 
           "Authorization"  => "Bearer #{redis.get("access_token")}",
@@ -216,7 +208,58 @@ post '/callback' do
 
         # delete file after we're done to save space
         File.delete(filename)
+
+      when Line::Bot::Event::MessageType::Video
+
+        logger.info event.message
+        response = client.get_message_content(event.message['id'])
+
+        # save file to disk temporarily
+        filename = "public/images/video_#{event.message['id']}.mp4"
+        logger.info filename
+        image_data = response.body
+        out_file = File.open(filename, "a+")
+        out_file << response.body
+        out_file.close
+
+        message = {
+          type: 'text',
+          text: "写真送ってくれてありがとう! ウェディングアルバムにアップロードするね〜　アルバムはこのリンクから見られる! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
+        }
+        client.reply_message(event['replyToken'], message)
+
+        headers = { 
+          "Authorization"  => "Bearer #{redis.get("access_token")}",
+          "Content-Type" => "video/mp4"
+        }
+        response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
+          :headers => headers,
+          :body => image_data
+        )
+
+        logger.info response.parsed_response
+
+        # Refresh if response fails
+        if response.parsed_response.include? "Token expired"
+
+          logger.info "Token error occurred so we will refresh the token."
+          refresh_token!
+
+          headers = { 
+            "Authorization"  => "Bearer #{redis.get("access_token")}",
+            "Content-Type" => "video/mp4"
+          }
+          response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
+            :headers => headers,
+            :body => image_data
+          )
+          logger.info response_json
+
+        end
+
 	     end
+
+
      end
    }
 
