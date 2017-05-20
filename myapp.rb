@@ -259,7 +259,7 @@ post '/callback' do
         # Add the file Data
         post_body << "--#{BOUNDARY}\r\n"
         post_body << "Content-Type: video/mp4\r\n\r\n"
-        post_body << image_data    
+        #post_body << image_data    
 
         post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
   
