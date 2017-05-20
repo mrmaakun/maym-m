@@ -270,6 +270,7 @@ post '/callback' do
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
           :body => joined_body
+        )
 
         logger.info response.parsed_response
 
