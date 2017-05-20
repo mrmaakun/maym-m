@@ -233,7 +233,9 @@ post '/callback' do
 
         headers = { 
           "Authorization"  => "Bearer #{redis.get("access_token")}",
-          "Content-Type" => "multipart/related, boundary=#{BOUNDARY}"
+          "Content-Type" => "multipart/related, boundary=#{BOUNDARY}",
+          "Content-Length" => "423478347",
+          "MIME-version" => "1.0"
         }
         post_body = []
 
