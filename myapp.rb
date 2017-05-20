@@ -143,7 +143,7 @@ post '/callback' do
           text: "写真を送ってみてください！お客様が既に送った写真を見たかったら、ウェディングアルバムを見てください! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
         }
         client.reply_message(event['replyToken'], message)
-      when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
+      when Line::Bot::Event::MessageType::Image
         logger.info "Awesome: "
         logger.info event.message
         logger.info event.message['originalContentUrl']
@@ -160,6 +160,14 @@ post '/callback' do
         message = {
           type: 'text',
           text: "写真送ってくれてありがとう! ウェディングアルバムにアップロードするね〜　アルバムはこのリンクから見られる! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
+        }
+        client.reply_message(event['replyToken'], message)
+
+      when Line::Bot::Event::MessageType::Video
+
+        message = {
+          type: 'text',
+          text: "This is a video!"
         }
         client.reply_message(event['replyToken'], message)
 
