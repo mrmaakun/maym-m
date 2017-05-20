@@ -200,8 +200,6 @@ post '/callback' do
             :headers => headers,
             :body => image_data
           )
-
-          response_json = JSON.parse(response.body)
           logger.info response_json
 
         end
