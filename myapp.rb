@@ -23,7 +23,7 @@ client_secrets = Google::APIClient::ClientSecrets.load("credentials.json")
 auth_client = client_secrets.to_authorization
 auth_client.update!(
   :scope => 'https://picasaweb.google.com/data/',
-  :redirect_uri => 'http://localhost:12345/oauth2callback',
+  :redirect_uri => "#{ENV['HOSTNAME']}oauth2callback',
 )
 
 def client
