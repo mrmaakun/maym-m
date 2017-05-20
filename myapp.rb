@@ -237,7 +237,7 @@ post '/callback' do
 
         request = Net::HTTP::Post.new(uri.request_uri)
         request['Authorization'] = "Bearer #{redis.get("access_token")}"
-        request['Content-Type'] = "multipart/related, boundary=#{BOUNDARY}"
+        request['Content-Type'] = "multipart/form-data, boundary=#{BOUNDARY}"
         request['MIME-version'] = "1.0"
 
         
