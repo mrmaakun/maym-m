@@ -264,7 +264,7 @@ post '/callback' do
 
         response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
           :headers => headers,
-          :body => post_body
+          :body => URI.encode_www_form(post_body)
         )
 
         logger.info response.parsed_response
@@ -281,7 +281,7 @@ post '/callback' do
           }
           response = HTTParty.post("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473", 
             :headers => headers,
-            :body => image_data
+            :body => URI.encode_www_form(post_body)
           )
           logger.info response_json
 
