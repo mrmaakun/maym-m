@@ -113,16 +113,30 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         logger.info "text message"
 
-        if event.message['text'].include? "次会"
+        message_text = event.message['text']
+
+      	if message_text.start_with? "#"
+
+          friend_message = redis.get(message_text)
+
           message = {
-          type: 'text',
-          text: "2次会はパセラリゾーツ グランデ 渋谷店でやります！ 受付は20:30から、スタートは21:00です！是非遊びに着てください！ https://goo.gl/aR74bV"
-        }
-        client.reply_message(event['replyToken'], message)
+           type: 'text',
+           text: friend_message
+          }
+          client.reply_message(event['replyToken'], message)
+          return
+      	end
+
+        if message_text.include? "次会"
+          message = {
+           type: 'text',
+           text: "2次会はパセラリゾーツ グランデ 渋谷店でやります！ 受付は20:30から、スタートは21:00です！是非遊びに着てください！ https://goo.gl/aR74bV"
+          }
+           client.reply_message(event['replyToken'], message)
           return
         end
 
-        if event.message['text'].downcase.include? "english"
+        if message_text.downcase.include? "english"
           message = {
           type: "text",
           text: "eigo wakarimasen!!"
@@ -131,7 +145,7 @@ post '/callback' do
           return
         end
 
-        if event.message['text'].downcase.include? "facebook" or event.message['text'].include? "フェィスブック"
+        if message_text.downcase.include? "facebook" or message_text.include? "フェィスブック"
           message = {
           type: "text",
           text: "結婚式の正式なFacebook Pageはこちらにあります! \n https://goo.gl/lKQKdS"
