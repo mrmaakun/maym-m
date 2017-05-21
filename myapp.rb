@@ -237,73 +237,11 @@ post '/callback' do
 
       when Line::Bot::Event::MessageType::Video
 
-        logger.info event.message
-        response = client.get_message_content(event.message['id'])
-
-        # save file to disk temporarily
-        filename = "public/images/video_#{event.message['id']}.mp4"
-        logger.info filename
-        image_data = response.body
-        out_file = File.open(filename, "a+")
-        out_file << response.body
-        out_file.close
-
         message = {
           type: 'text',
-          text: "写真送ってくれてありがとう! ウェディングアルバムにアップロードするね〜　アルバムはこのリンクから見られる! \n https://goo.gl/photos/jnZm9JKGdFKfgwvVA"
+          text: "ごめんなさい、動画は対応していないんですよ！写真を送ってみてください！"
         }
         client.reply_message(event['replyToken'], message)
-
-        BOUNDARY = "END_OF_PART"
-
-        uri = URI.parse("https://picasaweb.google.com/data/feed/api/user/default/albumid/6421730192211333473")
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-
-
-        request = Net::HTTP::Post.new(uri.request_uri)
-        request['Authorization'] = "Bearer #{redis.get("access_token")}"
-        request['Content-Type'] = "multipart/form-data, boundary=#{BOUNDARY}"
-        request['MIME-version'] = "1.0"
-
-
-
-        
-        post_body = []
-
-        builder = Nokogiri::XML::Builder.new { |xml|
-          xml.entry('xmlns' => 'http://www.w3.org/2005/Atom') do
-            xml.title "title"
-            xml.summary "Summary"
-            xml.object(:scheme => "http://schemas.google.com/g/2005#kind", :term => "http://schemas.google.com/photos/2007#photo")
-          end
-        }
-        
-        xml_text = builder.to_xml save_with:Nokogiri::XML::Node::SaveOptions::NO_DECLARATION
-        
-	       puts xml_text
-	
-	       # Add the XML
-        post_body << "--#{BOUNDARY}\r\n"
-        post_body << "Content-Type: application/atom+xml\r\n\r\n"
-        post_body << xml_text
-
-        # Add the file Data
-        post_body << "--#{BOUNDARY}\r\n"
-        post_body << "Content-Type: video/mp4\r\n\r\n"
-        post_body << image_data   
-
-        post_body << "\r\n\r\n--#{BOUNDARY}--\r\n"
-
-        joined_body = post_body.join
-  
-        # set content length header after knowing the size of the body
-        request['Content-Length'] = joined_body.length.to_s
-
-        request.body = joined_body
-        response = http.request(request)
-
-        logger.info response
 
 	     end
 
