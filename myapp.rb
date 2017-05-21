@@ -119,6 +119,16 @@ post '/callback' do
 
           friend_message = redis.get(message_text)
 
+          if friend_message.nil? 
+            message = {
+              type: 'text',
+              text: "そのハッシュタグにメッセージがついてないんですよ！ハッシュタグをもう一回確認してから送ってみてください！"
+            }
+
+            client.reply_message(event['replyToken'], message)
+          return
+          end
+
           message = {
            type: 'text',
            text: friend_message
